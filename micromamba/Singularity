@@ -1,0 +1,13 @@
+Bootstrap: docker
+From: mambaorg/micromamba
+
+%post
+    micromamba install --yes --name base -c bioconda -c conda-forge \
+      python=3.9.1 \
+      samtools \
+      bwa
+
+    micromamba clean -aqy
+
+%runscript
+    micromamba run -p /opt/conda "$@"

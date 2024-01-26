@@ -1,0 +1,21 @@
+Bootstrap: docker
+From: mambaorg/micromamba
+
+%post
+
+    apt-get update
+    apt-get install -y wget # gcc
+    wget https://developer.download.nvidia.com/compute/cuda/repos/debian12/x86_64/cuda-keyring_1.1-1_all.deb
+    dpkg -i cuda-keyring_1.1-1_all.deb
+    echo "deb [signed-by=/usr/share/keyrings/cuda-archive-keyring.gpg] https://developer.download.nvidia.com/compute/cuda/repos/debian12/x86_64/ /" | tee /etc/apt/sources.list.d/cuda-debian12-x86_64.list
+    sed -i '0,/Components: main/s//Components: main contrib non-free non-free-firmware/' /etc/apt/sources.list.d/debian.sources
+    apt-get update
+    apt-get -y install cuda-drivers # driver is enough, cuda gets installed via mamba
+
+    micromamba install --yes --name base -c conda-forge -c pytorch -c nvidia \
+      pytorch torchvision torchaudio pytorch-cuda=12.1 python=3.11 
+
+    micromamba clean -aqy
+
+%runscript
+    micromamba run -p /opt/conda "$@"
